@@ -1,0 +1,70 @@
+[project]
+name = "fassung"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Sergej Morokin", email = "sergej.morokin@googlemail.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "asyncpg>=0.30.0",
+    "asyncpg-stubs>=0.30.2",
+    "pydantic>=2.12.4",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.11,<0.10.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.1",
+    "pytest-asyncio>=1.3.0",
+    "pytest-cov>=7.0.0",
+]
+
+
+[tool.ruff]
+line-length = 119
+lint.select = [
+  "E", # pycodestyle errors
+  "W", # pycodestyle warnings
+  "F", # pyflakes
+  "I", # isort
+  "C", # flake8-comprehensions
+  "B", # flake8-bugbear
+  "S", # flake8-bandit
+  "TID", # flake8-tidy-imports
+  "INP", # flake8-no-pep420
+  "PT", # flake8-pytest-style
+  "UP", # pyupgrade
+  "N", # pep8-naming
+  "FA", # flake8-future-annotations
+  "SIM", # flake8-simplify
+  "PTH", # flake8-use-pathlib
+  "RUF", # ruff
+  "C4",  # Comprehensions
+  "PIE", # Unnecessary code
+  "T20", # Catch prints
+  "RET", # Checks return statements
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [ # These are not relevant for Tests
+  "S101", # Use of `assert` detected
+  "S311", # Standard pseudo-random generators are not suitable for cryptographic purpose
+  "S105", # Possible hardcoded password assigned to: "password"
+  "S106", # Possible hardcoded password assigned to argument: "password"
+]
+
+[tool.ruff.lint.isort]
+detect-same-package = true
+combine-as-imports = true
+
+[tool.pytest.ini_options]
+addopts = "-ra"     # add more details to all non-passing tests (also warnings)
+testpaths = [
+    "tests",
+]
+asyncio_mode = "auto"
