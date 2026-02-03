@@ -11,6 +11,16 @@ async def test_query_assembler_no_placeholders() -> None:
     assert assembled.args == ()
 
 
+async def test_query_assembler_normal_string() -> None:
+    query_assembler = QueryAssembler()
+    query = "SELECT * FROM table1"
+    assembled = query_assembler.assemble(query)
+    assert isinstance(assembled.query, str)
+    assert isinstance(assembled.args, tuple)
+    assert assembled.query == "SELECT * FROM table1"
+    assert assembled.args == ()
+
+
 async def test_query_assembler_2_placeholders_same_value() -> None:
     query_assembler = QueryAssembler()
     var = 1

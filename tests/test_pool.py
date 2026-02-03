@@ -1,6 +1,6 @@
 from asyncpg import create_pool
 
-from fassung.pool import Connection, Pool
+from fassung import Connection, Pool
 from fassung.query_assembler import QueryAssembler
 
 

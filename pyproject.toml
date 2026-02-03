@@ -3,44 +3,34 @@ name = "fassung"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-authors = [
-    { name = "Sergej Morokin", email = "sergej.morokin@googlemail.com" }
-]
+authors = [{ name = "Sergej Morokin", email = "sergej.morokin@googlemail.com" }]
 requires-python = ">=3.14"
-dependencies = [
-    "asyncpg>=0.30.0",
-    "asyncpg-stubs>=0.30.2",
-    "pydantic>=2.12.4",
-]
+dependencies = ["asyncpg>=0.30.0", "asyncpg-stubs>=0.30.2", "pydantic>=2.12.4"]
 
 [build-system]
 requires = ["uv_build>=0.9.11,<0.10.0"]
 build-backend = "uv_build"
 
 [dependency-groups]
-dev = [
-    "pytest>=9.0.1",
-    "pytest-asyncio>=1.3.0",
-    "pytest-cov>=7.0.0",
-]
+dev = ["pytest>=9.0.1", "pytest-asyncio>=1.3.0", "pytest-cov>=7.0.0"]
 
 
 [tool.ruff]
 line-length = 119
 lint.select = [
-  "E", # pycodestyle errors
-  "W", # pycodestyle warnings
-  "F", # pyflakes
-  "I", # isort
-  "C", # flake8-comprehensions
-  "B", # flake8-bugbear
-  "S", # flake8-bandit
+  "E",   # pycodestyle errors
+  "W",   # pycodestyle warnings
+  "F",   # pyflakes
+  "I",   # isort
+  "C",   # flake8-comprehensions
+  "B",   # flake8-bugbear
+  "S",   # flake8-bandit
   "TID", # flake8-tidy-imports
   "INP", # flake8-no-pep420
-  "PT", # flake8-pytest-style
-  "UP", # pyupgrade
-  "N", # pep8-naming
-  "FA", # flake8-future-annotations
+  "PT",  # flake8-pytest-style
+  "UP",  # pyupgrade
+  "N",   # pep8-naming
+  "FA",  # flake8-future-annotations
   "SIM", # flake8-simplify
   "PTH", # flake8-use-pathlib
   "RUF", # ruff
@@ -63,8 +53,8 @@ detect-same-package = true
 combine-as-imports = true
 
 [tool.pytest.ini_options]
-addopts = "-ra"     # add more details to all non-passing tests (also warnings)
-testpaths = [
-    "tests",
-]
+addopts = "-ra"                                # add more details to all non-passing tests (also warnings)
+testpaths = ["tests"]
 asyncio_mode = "auto"
+asyncio_default_test_loop_scope = "session"
+asyncio_default_fixture_loop_scope = "session"

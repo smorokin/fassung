@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from fassung.pool import Transaction
+from fassung import Transaction
 
 
 class SomeModel(BaseModel):
@@ -12,9 +12,9 @@ class SomeModel(BaseModel):
 
 
 async def test_transaction(transaction: Transaction) -> None:
-    pass
+    assert transaction
 
 
 async def test_fixtures(transaction: Transaction) -> None:
-    result = await transaction.fetch("SELECT * FROM test", SomeModel)
+    result = await transaction.fetch("SELECT * FROM students", SomeModel)
     assert len(result) == 2

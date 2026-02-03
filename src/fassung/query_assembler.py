@@ -13,13 +13,14 @@ class QueryAssembler:
     Creates a asncpg query + arguments for methods like Pool.fetch or Pool.execute
     """
 
-    def assemble(self, query: Template | str) -> AssembledQuery:
+    @classmethod
+    def assemble(cls, query: Template | str) -> AssembledQuery:
         """
         Assemble a template query into an asyncpg query + arguments
         """
         if isinstance(query, str):
             return AssembledQuery(query, ())
-        assembled_query, args = self._assemble_recursive(query)
+        assembled_query, args = cls._assemble_recursive(query)
         if args:
             return AssembledQuery(assembled_query, args)
         return AssembledQuery(assembled_query, ())
