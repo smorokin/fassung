@@ -2,6 +2,8 @@ from itertools import zip_longest
 from string.templatelib import Template
 from typing import Any, NamedTuple
 
+from fassung.types import QueryType
+
 
 class AssembledQuery(NamedTuple):
     query: str
@@ -14,7 +16,7 @@ class QueryAssembler:
     """
 
     @classmethod
-    def assemble(cls, query: Template | str) -> AssembledQuery:
+    def assemble(cls, query: QueryType) -> AssembledQuery:
         """
         Assemble a template query into an asyncpg query + arguments
         """
