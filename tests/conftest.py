@@ -17,22 +17,63 @@ async def pool(connection_string: str) -> Pool:
 
 
 async def _add_test_table_and_data(connection: Connection | Transaction) -> None:
-    _ = await connection.execute("""
+    _ = await connection.execute(t"""
     CREATE TABLE IF NOT EXISTS students (
         id INT PRIMARY KEY,
-        name TEXT,
-        field_int INT,
-        field_bool BOOLEAN,
-        field_float FLOAT,
-        field_str TEXT
+        full_name TEXT NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        birth_date DATE,
+        major TEXT NOT NULL,
+        gpa FLOAT,
+        is_active BOOLEAN,
+        enrolled_at TIMESTAMPTZ NOT NULL,
+        last_seen_at TIMESTAMPTZ
     );""")
     _ = await connection.execute(
-        """INSERT INTO students (id, name, field_int, field_bool, field_float, field_str)
-        VALUES (1, 'John', 1, true, 42.0, 'some_string');"""
+        t"""INSERT INTO students (
+            id,
+            full_name,
+            email,
+            birth_date,
+            major,
+            gpa,
+            is_active,
+            enrolled_at,
+            last_seen_at
+        ) VALUES (
+            1,
+            'Jane Doe',
+            'jane@example.edu',
+            '2002-05-14',
+            'Physics',
+            3.9,
+            true,
+            '2023-09-01 09:00:00+00',
+            '2024-02-01 10:30:00+00'
+        );"""
     )
     _ = await connection.execute(
-        """INSERT INTO students (id, name, field_int, field_bool, field_float, field_str)
-        VALUES (2, 'Jane', 5, false, 42.0, 'some_other_string');"""
+        t"""INSERT INTO students (
+            id,
+            full_name,
+            email,
+            birth_date,
+            major,
+            gpa,
+            is_active,
+            enrolled_at,
+            last_seen_at
+        ) VALUES (
+            2,
+            'John Doe',
+            'john@example.edu',
+            '2001-11-22',
+            'Mathematics',
+            2.8,
+            false,
+            '2022-01-15 14:30:00+00',
+            NULL
+        );"""
     )
 
 

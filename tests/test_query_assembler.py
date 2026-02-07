@@ -1,3 +1,6 @@
+import pytest
+
+from fassung.exceptions import UnsupportedTemplateError
 from fassung.query_assembler import QueryAssembler
 
 
@@ -13,7 +16,7 @@ async def test_query_assembler_no_placeholders() -> None:
 
 async def test_query_assembler_normal_string() -> None:
     query_assembler = QueryAssembler()
-    query = "SELECT * FROM table1"
+    query = t"SELECT * FROM table1"
     assembled = query_assembler.assemble(query)
     assert isinstance(assembled.query, str)
     assert isinstance(assembled.args, tuple)
@@ -146,3 +149,10 @@ async def test_query_assembler() -> None:
         == "SELECT id, field1, field2, field3 FROM table1 WHERE id = $1 AND field1 = $2 AND field2 = $3"
     )
     assert assembled.args == (1, 1, 1)
+
+
+async def test_query_assembler_unsupported_template_error() -> None:
+    query_assembler = QueryAssembler()
+    query = "SELECT * FROM table1"
+    with pytest.raises(UnsupportedTemplateError):
+        _ = query_assembler.assemble(query)  # pyright: ignore[reportArgumentType]

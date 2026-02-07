@@ -2,7 +2,7 @@ from itertools import zip_longest
 from string.templatelib import Template
 from typing import Any, NamedTuple
 
-from fassung.types import QueryType
+from fassung.exceptions import UnsupportedTemplateError
 
 
 class AssembledQuery(NamedTuple):
@@ -15,14 +15,13 @@ class QueryAssembler:
     Creates a asncpg query + arguments for methods like Pool.fetch or Pool.execute
     """
 
-    @classmethod
-    def assemble(cls, query: QueryType) -> AssembledQuery:
+    def assemble(self, query: Template) -> AssembledQuery:
         """
         Assemble a template query into an asyncpg query + arguments
         """
-        if isinstance(query, str):
-            return AssembledQuery(query, ())
-        assembled_query, args = cls._assemble_recursive(query)
+        if isinstance(query, str):  # pyright: ignore[reportUnnecessaryIsInstance]
+            raise UnsupportedTemplateError("fassung does not support str as queries. Use Template query type instead.")  # pyright: ignore[reportUnreachable]
+        assembled_query, args = self._assemble_recursive(query)
         if args:
             return AssembledQuery(assembled_query, args)
         return AssembledQuery(assembled_query, ())

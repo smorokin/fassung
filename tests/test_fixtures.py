@@ -1,14 +1,5 @@
-from pydantic import BaseModel
-
 from fassung import Transaction
-
-
-class SomeModel(BaseModel):
-    id: int
-    field_int: int
-    field_bool: bool
-    field_float: float
-    field_str: str
+from tests.models import Student
 
 
 async def test_transaction(transaction: Transaction) -> None:
@@ -16,5 +7,5 @@ async def test_transaction(transaction: Transaction) -> None:
 
 
 async def test_fixtures(transaction: Transaction) -> None:
-    result = await transaction.fetch("SELECT * FROM students", SomeModel)
+    result = await transaction.fetch(Student, t"SELECT * FROM students")
     assert len(result) == 2

@@ -40,7 +40,7 @@ async def main():
         async with connection as transaction:
             age = 18
             students: list[Student] = await transaction.fetch(
-                t"SELECT * FROM students WHERE age = {age}", Student
+                Student, t"SELECT * FROM students WHERE age = {age}"
             )
             for student in students:
                 print(student.name)

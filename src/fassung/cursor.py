@@ -1,6 +1,7 @@
 from __future__ import annotations
+
+from collections.abc import AsyncIterable, AsyncIterator, Awaitable, Generator
 from typing import Self, override
-from collections.abc import Generator, Awaitable, AsyncIterable, AsyncIterator
 
 from asyncpg.cursor import (
     Cursor as AsyncpgCursor,
