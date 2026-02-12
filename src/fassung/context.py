@@ -30,4 +30,4 @@ class Context(AbstractAsyncContextManager[Connection]):
     ) -> None:
         if self._connection is None:
             raise RuntimeError("Connection is not initialized")  # pragma: no cover
-        await self._pool.release(self._connection._connection)
+        await self._pool.release(self._connection._connection)  # pyright: ignore[reportPrivateUsage]
