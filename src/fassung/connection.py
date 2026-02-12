@@ -28,7 +28,7 @@ class Transaction:
     def __init__(self, connection: Connection, transaction: AsyncpgTransaction) -> None:
         self._connection: Connection = connection
         self._transaction: AsyncpgTransaction = transaction
-        self._status: TransactionStatus = TransactionStatus.STARTED
+        self.status: TransactionStatus = TransactionStatus.STARTED
 
     async def execute(self, query: Template) -> str:
         self._check_status()
@@ -52,24 +52,24 @@ class Transaction:
         self._check_status()
         return await self._connection.fetchrow(type_=type_, query=query, timeout=timeout)
 
-    async def _rollback(self) -> None:
+    async def rollback(self) -> None:
         await self._transaction.rollback()
-        self._status = TransactionStatus.ROLLED_BACK
+        self.status = TransactionStatus.ROLLED_BACK
 
-    async def _commit(self) -> None:
+    async def commit(self) -> None:
         await self._transaction.commit()
-        self._status = TransactionStatus.COMMITTED
+        self.status = TransactionStatus.COMMITTED
 
     def mark_for_rollback(self) -> None:
         """
         Abort the transaction and mark it for rollback. The transaction cannot be used
         after this method is called.
         """
-        self._status = TransactionStatus.MARKED_FOR_ROLLBACK
+        self.status = TransactionStatus.MARKED_FOR_ROLLBACK
 
     def _check_status(self) -> None:
-        if self._status != TransactionStatus.STARTED:
-            raise TransactionClosedError(f"Transaction is not in started status: {self._status}")
+        if self.status != TransactionStatus.STARTED:
+            raise TransactionClosedError(f"Transaction is not in started status: {self.status}")
 
 
 class Connection(AbstractAsyncContextManager[Transaction]):
@@ -128,10 +128,10 @@ class Connection(AbstractAsyncContextManager[Transaction]):
             raise RuntimeError("Transaction is not initialized")  # pragma: no cover
 
         if exc_val is None:
-            if self._transaction._status == TransactionStatus.MARKED_FOR_ROLLBACK:
-                await self._transaction._rollback()
+            if self._transaction.status == TransactionStatus.MARKED_FOR_ROLLBACK:
+                await self._transaction.rollback()
             else:
-                await self._transaction._commit()
+                await self._transaction.commit()
         else:
-            await self._transaction._rollback()
+            await self._transaction.rollback()
             raise exc_val

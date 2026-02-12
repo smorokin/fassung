@@ -10,4 +10,4 @@ class MappedRecord(Record):
 
 
 # register MappedRecord as a mapping so pydantic can parse it without making Record a Mapping
-Mapping.register(MappedRecord)
+Mapping.register(MappedRecord)  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType]
