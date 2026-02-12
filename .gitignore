@@ -15,6 +15,7 @@ wheels/
 
 # coverage
 .coverage
+coverage.xml
 htmlcov/
 
 # env

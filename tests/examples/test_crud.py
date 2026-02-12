@@ -153,3 +153,10 @@ async def test_crud_fetch_all_with_where_clause(crud: StudentRepository) -> None
     count, students = await crud.fetch_all(where_clause=t"WHERE id = 1")
     assert count == 1
     assert len(students) == 1
+
+
+async def test_crud_fetch_all_with_where_clause_date(crud: StudentRepository) -> None:
+    since = date(2002, 5, 14)
+    count, students = await crud.fetch_all(where_clause=t"WHERE birth_date = {since}")
+    assert count == 1
+    assert len(students) == 1

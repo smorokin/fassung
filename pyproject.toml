@@ -1,11 +1,32 @@
 [project]
 name = "fassung"
 version = "0.1.0"
-description = "Add your description here"
+description = "Ergonomic, type-safe, and SQL-injection-safe PostgreSQL interface using PEP 750 template strings."
 readme = "README.md"
 authors = [{ name = "Sergej Morokin", email = "sergej.morokin@googlemail.com" }]
+license = "MIT"
 requires-python = ">=3.14"
 dependencies = ["asyncpg>=0.30.0", "asyncpg-stubs>=0.30.2", "pydantic>=2.12.4"]
+keywords = [
+  "asyncpg",
+  "pydantic",
+  "postgresql",
+  "sql",
+  "pep750",
+  "template-strings",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Database",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[project.urls]
+Repository = "https://github.com/smorokin/fassung"
+"Issue Tracker" = "https://github.com/smorokin/fassung/issues"
 
 [build-system]
 requires = ["uv_build>=0.9.11,<0.10.0"]
