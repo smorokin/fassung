@@ -5,7 +5,7 @@
 
 Fassung combines asyncpg, pydantic and the template strings to provide an ergonomic, type- and SQL-injection-safe interface for working with PostgreSQL databases. It also allows safe nested query composition.
 
-Fassung is very similar to asyncpg. The main difference is that fassung does neither accept positional parameters nor normal python string (`""` or `f""`) as arguments for it's query methods. 
+Fassung is very similar to asyncpg. The main difference is that fassung does neither accept positional parameters nor normal python string (`""` or `f""`) as arguments for it's query methods.
 Instead it relies on python's new template string literals (`t""`) for query construction. This has several benefits:
 - It is SQL-injection-safe: you can't pass a string with SQL code as a parameter
 - It is ergonomic: you can pass variables directly into the query, your IDE will provide autocompletion and type checking
@@ -13,7 +13,7 @@ Instead it relies on python's new template string literals (`t""`) for query con
 
 Additionally, fassung also uses pydantic to map the query results to python objects, like dataclasses or pydantic models.
 
-It is currently just a proof of concept and not ready for production use. Some features like `COPY` and `LISTEN/NOTIFY` are not implemented yet.
+It is currently just a proof of concept and not ready for production use. Some features like `COPY` are not implemented yet.
 
 ## Installation
 
@@ -23,7 +23,7 @@ Fassung requires python 3.14 because it relies on [template string literals (PEP
 pip install fassung
 ```
 
-or 
+or
 
 ```bash
 uv add fassung
@@ -31,7 +31,7 @@ uv add fassung
 
 ## Usage
 
-The central class is the `Pool` class, which is a context manager for a connection pool. 
+The central class is the `Pool` class, which is a context manager for a connection pool.
 You can use the `Pool` class to create connections. Each connection can execute queries and create transactions.
 
 Basic example:
