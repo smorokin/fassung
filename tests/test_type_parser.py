@@ -47,7 +47,7 @@ class SomeModel(BaseModel):
         ),
     ],
 )
-def test_parse_simple_type(value: Any, type_: type[T], expected: T) -> None:
+def test_parse_simple_type[T](value: Any, type_: type[T], expected: T) -> None:
     parsed = TypeParser.parse(type_, value)
     assert isinstance(parsed, type_)
     assert parsed == expected

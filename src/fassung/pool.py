@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+from contextlib import asynccontextmanager
 from typing import cast
 
 from asyncpg import create_pool
 from asyncpg.pool import Pool as AsyncpgPool
 
-from fassung.context import Context
+from fassung import Connection
+
 from fassung.query_assembler import QueryAssembler
 from fassung.record import MappedRecord
 
@@ -15,8 +17,10 @@ class Pool:
         self._pool: AsyncpgPool = pool
         self.query_assembler: QueryAssembler = query_assembler or QueryAssembler()
 
-    def acquire(self) -> Context:
-        return Context(self._pool, self.query_assembler)
+    @asynccontextmanager
+    async def acquire(self):
+        async with self._pool.acquire() as connection:
+            yield Connection(connection, self.query_assembler)
 
     @staticmethod
     async def from_connection_string(
