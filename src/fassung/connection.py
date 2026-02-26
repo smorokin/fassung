@@ -33,6 +33,8 @@ class _InnerListener(Protocol):
 
 
 class TransactionStatus(StrEnum):
+    """Lifecycle states of a transaction."""
+
     STARTED = "started"
     COMMITTED = "committed"
     MARKED_FOR_ROLLBACK = "marked_for_rollback"
@@ -40,45 +42,90 @@ class TransactionStatus(StrEnum):
 
 
 class Transaction:
+    """Wraps an active database transaction.
+
+    A Transaction proxies query methods to its parent ``Connection`` while
+    guarding against use after commit, rollback, or being marked for rollback.
+    Use a ``Connection`` as an async context manager to obtain one.
+    """
+
     def __init__(self, connection: Connection, transaction: AsyncpgTransaction) -> None:
         self._connection: Connection = connection
         self._transaction: AsyncpgTransaction = transaction
         self.status: TransactionStatus = TransactionStatus.STARTED
 
     async def execute(self, query: Template) -> str:
+        """Execute a SQL command and return its status string.
+
+        Args:
+            query: A t-string template containing the SQL to execute.
+        """
         self._check_status()
         return await self._connection.execute(query)
 
     def cursor(
         self, type_: type[T], query: Template, *, prefetch: int | None = None, timeout: float | None = None
     ) -> CursorFactory[T]:
+        """Create a cursor factory for iterating over query results.
+
+        Args:
+            type_: The row type to parse each result into.
+            query: A t-string template containing the SQL query.
+            prefetch: Number of rows to prefetch.
+            timeout: Optional query timeout in seconds.
+        """
         self._check_status()
         return self._connection.cursor(type_=type_, query=query, prefetch=prefetch, timeout=timeout)
 
     async def fetch(self, type_: type[T], query: Template, *, timeout: float | None = None) -> list[T]:
+        """Execute a query and return all resulting rows as a typed list.
+
+        Args:
+            type_: The row type to parse each result into.
+            query: A t-string template containing the SQL query.
+            timeout: Optional query timeout in seconds.
+        """
         self._check_status()
         return await self._connection.fetch(type_=type_, query=query, timeout=timeout)
 
     async def fetchval(self, type_: type[T], query: Template, column: int = 0, *, timeout: float | None = None) -> T:
+        """Execute a query and return a single scalar value.
+
+        Args:
+            type_: The expected type of the returned value.
+            query: A t-string template containing the SQL query.
+            column: Zero-based column index to extract.
+            timeout: Optional query timeout in seconds.
+        """
         self._check_status()
         return await self._connection.fetchval(type_=type_, query=query, column=column, timeout=timeout)
 
     async def fetchrow(self, type_: type[T], query: Template, *, timeout: float | None = None) -> T | None:
+        """Execute a query and return the first row, or ``None`` if empty.
+
+        Args:
+            type_: The row type to parse the result into.
+            query: A t-string template containing the SQL query.
+            timeout: Optional query timeout in seconds.
+        """
         self._check_status()
         return await self._connection.fetchrow(type_=type_, query=query, timeout=timeout)
 
     async def rollback(self) -> None:
+        """Roll back the transaction."""
         await self._transaction.rollback()
         self.status = TransactionStatus.ROLLED_BACK
 
     async def commit(self) -> None:
+        """Commit the transaction."""
         await self._transaction.commit()
         self.status = TransactionStatus.COMMITTED
 
     def mark_for_rollback(self) -> None:
-        """
-        Abort the transaction and mark it for rollback. The transaction cannot be used
-        after this method is called.
+        """Mark the transaction for rollback.
+
+        The transaction cannot be used after this call. The actual rollback
+        is performed when the ``Connection`` context manager exits.
         """
         self.status = TransactionStatus.MARKED_FOR_ROLLBACK
 
@@ -88,6 +135,14 @@ class Transaction:
 
 
 class Connection(AbstractAsyncContextManager[Transaction]):
+    """Async database connection that assembles t-string queries and parses results.
+
+    Use as an async context manager to start a ``Transaction``::
+
+        async with connection as txn:
+            await txn.execute(t"...")
+    """
+
     def __init__(self, connection: AsyncpgConnection | PoolConnectionProxy, query_assembler: QueryAssembler) -> None:
         self._connection: AsyncpgConnection | PoolConnectionProxy = connection
         self._query_assembler: QueryAssembler = query_assembler
@@ -97,12 +152,26 @@ class Connection(AbstractAsyncContextManager[Transaction]):
         ] = {}  # used for mapping our listener functions to asyncpg's listener functions
 
     async def execute(self, query: Template, *, timeout: float | None = None) -> str:
+        """Execute a SQL command and return its status string.
+
+        Args:
+            query: A t-string template containing the SQL to execute.
+            timeout: Optional query timeout in seconds.
+        """
         assembled = self._query_assembler.assemble(query)
         return await self._connection.execute(assembled.query, *assembled.args, timeout=timeout)
 
     def cursor(
         self, type_: type[T], query: Template, *, prefetch: int | None = None, timeout: float | None = None
     ) -> CursorFactory[T]:
+        """Create a cursor factory for iterating over query results.
+
+        Args:
+            type_: The row type to parse each result into.
+            query: A t-string template containing the SQL query.
+            prefetch: Number of rows to prefetch.
+            timeout: Optional query timeout in seconds.
+        """
         assembled = self._query_assembler.assemble(query)
         return CursorFactory(
             cursor_factory=self._connection.cursor(
@@ -112,16 +181,38 @@ class Connection(AbstractAsyncContextManager[Transaction]):
         )
 
     async def fetch(self, type_: type[T], query: Template, *, timeout: float | None = None) -> list[T]:
+        """Execute a query and return all resulting rows as a typed list.
+
+        Args:
+            type_: The row type to parse each result into.
+            query: A t-string template containing the SQL query.
+            timeout: Optional query timeout in seconds.
+        """
         assembled = self._query_assembler.assemble(query)
         raw_list = await self._connection.fetch(assembled.query, *assembled.args, timeout=timeout)
         return TypeParser.parse(list[type_], raw_list)
 
     async def fetchval(self, type_: type[T], query: Template, column: int = 0, *, timeout: float | None = None) -> T:
+        """Execute a query and return a single scalar value.
+
+        Args:
+            type_: The expected type of the returned value.
+            query: A t-string template containing the SQL query.
+            column: Zero-based column index to extract.
+            timeout: Optional query timeout in seconds.
+        """
         assembled = self._query_assembler.assemble(query)
         raw_value = await self._connection.fetchval(assembled.query, *assembled.args, column=column, timeout=timeout)
         return TypeParser.parse(type_, raw_value)
 
     async def fetchrow(self, type_: type[T], query: Template, *, timeout: float | None = None) -> T | None:
+        """Execute a query and return the first row, or ``None`` if empty.
+
+        Args:
+            type_: The row type to parse the result into.
+            query: A t-string template containing the SQL query.
+            timeout: Optional query timeout in seconds.
+        """
         assembled = self._query_assembler.assemble(query)
         raw_row = await self._connection.fetchrow(assembled.query, *assembled.args, timeout=timeout)
         if raw_row is None:
@@ -129,6 +220,16 @@ class Connection(AbstractAsyncContextManager[Transaction]):
         return TypeParser.parse(type_, raw_row)
 
     async def add_listener(self, channel: str, payload_type: type[T], callback: Listener[T]) -> None:
+        """Subscribe to PostgreSQL LISTEN/NOTIFY notifications on *channel*.
+
+        The raw notification payload is parsed into *payload_type* before being
+        passed to *callback*.
+
+        Args:
+            channel: The notification channel name.
+            payload_type: The type to parse the payload into.
+            callback: The listener to invoke on each notification.
+        """
 
         if iscoroutinefunction(callback):
 
@@ -154,6 +255,12 @@ class Connection(AbstractAsyncContextManager[Transaction]):
             self._listener_mapping[(callback, channel)] = sync_listener
 
     async def remove_listener(self, channel: str, callback: Listener[T]) -> None:
+        """Unsubscribe a previously registered listener from *channel*.
+
+        Args:
+            channel: The notification channel name.
+            callback: The listener to remove.
+        """
         inner_listener = self._listener_mapping.pop((callback, channel))
         await self._connection.remove_listener(channel, inner_listener)
 

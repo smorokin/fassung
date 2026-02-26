@@ -7,7 +7,6 @@ from asyncpg import create_pool
 from asyncpg.pool import Pool as AsyncpgPool
 
 from fassung import Connection
-
 from fassung.query_assembler import QueryAssembler
 from fassung.record import MappedRecord
 

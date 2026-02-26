@@ -9,6 +9,13 @@ T = TypeVar("T")
 
 
 class Listener[T](Protocol):
+    """Protocol for LISTEN/NOTIFY callbacks.
+
+    A listener receives the connection that triggered the notification, the
+    backend process ID, the channel name, and the parsed payload. It may be
+    synchronous or asynchronous.
+    """
+
     def __call__(
         self,
         con_ref: Connection,

@@ -4,8 +4,10 @@ from asyncpg import Record
 
 
 class MappedRecord(Record):
-    """
-    A Record that will be recognized as a mapping by Pydantic.
+    """An asyncpg Record subclass registered as a Mapping.
+
+    This allows Pydantic to validate record instances directly, without
+    converting the base Record class itself into a Mapping.
     """
 
 

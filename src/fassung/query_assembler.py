@@ -6,18 +6,28 @@ from fassung.exceptions import UnsupportedTemplateError
 
 
 class AssembledQuery(NamedTuple):
+    """A parameterised query ready for asyncpg execution.
+
+    Attributes:
+        query: The SQL string with positional ``$N`` placeholders.
+        args: The argument values corresponding to each placeholder.
+    """
+
     query: str
     args: tuple[Any, ...]
 
 
 class QueryAssembler:
-    """
-    Creates a asncpg query + arguments for methods like Pool.fetch or Pool.execute
-    """
+    """Converts t-string templates into parameterised asyncpg queries."""
 
     def assemble(self, query: Template) -> AssembledQuery:
-        """
-        Assemble a template query into an asyncpg query + arguments
+        """Assemble a Template into an ``AssembledQuery``.
+
+        Args:
+            query: A t-string template containing SQL with interpolated values.
+
+        Raises:
+            UnsupportedTemplateError: If *query* is a plain string.
         """
         if isinstance(query, str):  # pyright: ignore[reportUnnecessaryIsInstance]
             raise UnsupportedTemplateError("fassung does not support str as queries. Use Template query type instead.")  # pyright: ignore[reportUnreachable]

@@ -1,6 +1,6 @@
 class TransactionClosedError(Exception):
-    pass
+    """Raised when an operation is attempted on a transaction that is no longer active."""
 
 
 class UnsupportedTemplateError(Exception):
-    pass
+    """Raised when a plain string is passed where a Template is required."""

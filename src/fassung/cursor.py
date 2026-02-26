@@ -13,9 +13,10 @@ from fassung.type_parser import TypeParser
 
 
 class CursorIterator[T](AsyncIterator[T]):
-    """
-    An iterator for iterating over rows of a query result efficiently in an async for loop.
-    It is not intended to be used directly but rather through a CursorFactory.
+    """Async iterator that yields typed rows from a query result.
+
+    Not intended to be created directly — use ``CursorFactory`` in an
+    ``async for`` loop instead.
     """
 
     def __init__(self, cursor: AsyncpgCursorIterator, type_: type[T]) -> None:
@@ -33,9 +34,9 @@ class CursorIterator[T](AsyncIterator[T]):
 
 
 class Cursor[T]:
-    """
-    A database cursor for iterating over rows of a query result efficiently in an interactive way.
-    It is not intended to be used directly but rather through a CursorFactory.
+    """Interactive database cursor for fetching typed rows on demand.
+
+    Not intended to be created directly — await a ``CursorFactory`` instead.
     """
 
     def __init__(self, cursor: AsyncpgCursor, type_: type[T]) -> None:
@@ -43,23 +44,40 @@ class Cursor[T]:
         self._type: type[T] = type_
 
     async def fetch(self, n: int, *, timeout: float | None = None) -> list[T]:
+        """Fetch the next *n* rows and return them as a typed list.
+
+        Args:
+            n: Maximum number of rows to fetch.
+            timeout: Optional query timeout in seconds.
+        """
         raw_list = await self._cursor.fetch(n, timeout=timeout)
         return TypeParser.parse(list[self._type], raw_list)
 
     async def fetchrow(self, *, timeout: float | None = None) -> T | None:
+        """Fetch the next row, or return ``None`` if exhausted.
+
+        Args:
+            timeout: Optional query timeout in seconds.
+        """
         raw_record = await self._cursor.fetchrow(timeout=timeout)
         if not raw_record:
             return None
         return TypeParser.parse(self._type, raw_record)
 
     async def forward(self, n: int, *, timeout: float | None = None) -> int:
+        """Skip forward *n* rows and return the number of rows actually skipped.
+
+        Args:
+            n: Number of rows to skip.
+            timeout: Optional query timeout in seconds.
+        """
         return await self._cursor.forward(n, timeout=timeout)
 
 
 class CursorFactory[T](Awaitable[Cursor[T]], AsyncIterable[T]):
-    """
-    A factory for creating cursors if awaited and iterators if iterated over it.
-    It is not intended to be used directly but rather through a Connection.cursor method.
+    """Factory that produces a ``Cursor`` when awaited or a ``CursorIterator`` when iterated.
+
+    Obtain an instance via ``Connection.cursor`` or ``Transaction.cursor``.
     """
 
     def __init__(self, cursor_factory: AsyncpgCursorFactory, type_: type[T]) -> None:
