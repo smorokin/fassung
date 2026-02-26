@@ -1,6 +1,6 @@
 [project]
 name = "fassung"
-version = "0.1.2"
+version = "0.2.0"
 description = "Ergonomic, type-safe, and SQL-injection-safe PostgreSQL interface using PEP 750 template strings."
 readme = "README.md"
 authors = [{ name = "Sergej Morokin", email = "sergej.morokin@googlemail.com" }]
