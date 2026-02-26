@@ -41,7 +41,7 @@ jobs:
         run: uv sync --all-extras --dev
 
       - name: Run pre-commit hooks (linting, formatting, lock file sync and other checks)
-        run: uv run prek run
+        run: uv run prek run --skip no-commit-to-branch
 
       - name: Type check with pyright
         run: uv run pyright
