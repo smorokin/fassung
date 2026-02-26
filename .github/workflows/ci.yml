@@ -40,14 +40,8 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-extras --dev
 
-      - name: Check lockfile sync
-        run: uv lock --check
-
-      - name: Lint with ruff
-        run: uv run ruff check .
-
-      - name: Check formatting with ruff
-        run: uv run ruff format --check .
+      - name: Run pre-commit hooks (linting, formatting, lock file sync and other checks)
+        run: uv run prek run
 
       - name: Type check with pyright
         run: uv run pyright
@@ -101,4 +95,3 @@ jobs:
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-
