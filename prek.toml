@@ -1,0 +1,39 @@
+[[repos]]
+repo = "https://github.com/pre-commit/pre-commit-hooks"
+rev = "v6.0.0"
+hooks = [
+    { id = "check-added-large-files" },
+    { id = "check-case-conflict" },
+    { id = "check-executables-have-shebangs" },
+    { id = "check-json" },
+    { id = "check-merge-conflict" },
+    { id = "check-toml" },
+    { id = "check-yaml" },
+    { id = "detect-private-key" },
+    { id = "end-of-file-fixer" },
+    { id = "fix-byte-order-marker" },
+    { id = "mixed-line-ending" },
+    { id = "no-commit-to-branch" },
+    { id = "trailing-whitespace" },
+]
+
+[[repos]]
+repo = "https://github.com/astral-sh/ruff-pre-commit"
+rev = "v0.15.3"
+hooks = [
+    { id = "ruff-check", args = [
+        "--fix",
+    ], types_or = [
+        "python",
+        "pyi",
+    ] },
+    { id = "ruff-format", types_or = [
+        "python",
+        "pyi",
+    ] },
+]
+
+[[repos]]
+repo = "https://github.com/astral-sh/uv-pre-commit"
+rev = "0.10.6"
+hooks = [{ id = "uv-lock" }]

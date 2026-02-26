@@ -14,6 +14,15 @@ To install the dependencies including dev-dependencies, run:
 uv sync --dev --locked
 ```
 
+
+### Pre-commit hooks
+
+`fassung` uses `prek` for pre-commit hooks. To install the hooks, run:
+
+```bash
+prek install
+```
+
 ### Coding Standards
 
 We use `ruff` for linting and formatting, and `pyright` for static type analysis.
