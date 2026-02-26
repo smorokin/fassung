@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+from collections.abc import Awaitable
 from contextlib import AbstractAsyncContextManager
 from enum import StrEnum
+from inspect import iscoroutinefunction
 from string.templatelib import Template
 from types import TracebackType
-from typing import TypeVar, override
+from typing import Any, Protocol, TypeVar, override
 
+from asyncpg.connection import Connection as AsyncpgConnection
 from asyncpg.pool import PoolConnectionProxy
 from asyncpg.transaction import Transaction as AsyncpgTransaction
 
@@ -13,8 +16,20 @@ from fassung.cursor import CursorFactory
 from fassung.exceptions import TransactionClosedError
 from fassung.query_assembler import QueryAssembler
 from fassung.type_parser import TypeParser
+from fassung.types import Listener
 
 T = TypeVar("T")
+
+
+class _InnerListener(Protocol):
+    def __call__(
+        self,
+        con_ref: AsyncpgConnection | PoolConnectionProxy,
+        pid: int,
+        channel: str,
+        payload: object,
+        /,
+    ) -> Awaitable[None] | None: ...
 
 
 class TransactionStatus(StrEnum):
@@ -73,10 +88,13 @@ class Transaction:
 
 
 class Connection(AbstractAsyncContextManager[Transaction]):
-    def __init__(self, connection: PoolConnectionProxy, query_assembler: QueryAssembler) -> None:
-        self._connection: PoolConnectionProxy = connection
+    def __init__(self, connection: AsyncpgConnection | PoolConnectionProxy, query_assembler: QueryAssembler) -> None:
+        self._connection: AsyncpgConnection | PoolConnectionProxy = connection
         self._query_assembler: QueryAssembler = query_assembler
         self._transaction: Transaction | None = None
+        self._listener_mapping: dict[
+            tuple[Listener[Any], str], _InnerListener
+        ] = {}  # used for mapping our listener functions to asyncpg's listener functions
 
     async def execute(self, query: Template, *, timeout: float | None = None) -> str:
         assembled = self._query_assembler.assemble(query)
@@ -109,6 +127,35 @@ class Connection(AbstractAsyncContextManager[Transaction]):
         if raw_row is None:
             return None
         return TypeParser.parse(type_, raw_row)
+
+    async def add_listener(self, channel: str, payload_type: type[T], callback: Listener[T]) -> None:
+
+        if iscoroutinefunction(callback):
+
+            async def async_listener(
+                con_ref: AsyncpgConnection | PoolConnectionProxy, pid: int, channel: str, payload: object, /
+            ) -> None:
+                parsed_payload = TypeParser.parse(payload_type, payload)
+
+                await callback(Connection(con_ref, self._query_assembler), pid, channel, parsed_payload)
+
+            await self._connection.add_listener(channel, async_listener)
+            self._listener_mapping[(callback, channel)] = async_listener
+
+        else:
+
+            def sync_listener(
+                con_ref: AsyncpgConnection | PoolConnectionProxy, pid: int, channel: str, payload: object, /
+            ) -> None:
+                parsed_payload = TypeParser.parse(payload_type, payload)
+                callback(Connection(con_ref, self._query_assembler), pid, channel, parsed_payload)
+
+            await self._connection.add_listener(channel, sync_listener)
+            self._listener_mapping[(callback, channel)] = sync_listener
+
+    async def remove_listener(self, channel: str, callback: Listener[T]) -> None:
+        inner_listener = self._listener_mapping.pop((callback, channel))
+        await self._connection.remove_listener(channel, inner_listener)
 
     @override
     async def __aenter__(self) -> Transaction:
