@@ -1,12 +1,13 @@
 name: Documentation
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
+
 permissions:
   contents: read
   pages: write
   id-token: write
+
 jobs:
   deploy:
     environment:
@@ -16,10 +17,12 @@ jobs:
     steps:
       - uses: actions/configure-pages@v5
       - uses: actions/checkout@v5
-      - uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v5
         with:
-          python-version: 3.x
-      - run: pip install zensical
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+      - run: uv python install
+      - run: uv sync --all-extras --dev
       - run: zensical build --clean --strict
       - uses: actions/upload-pages-artifact@v4
         with:
