@@ -21,7 +21,7 @@ class QueryAssembler:
     """Converts t-string templates into parameterised asyncpg queries."""
 
     def assemble(self, query: Template) -> AssembledQuery:
-        """Assemble a Template into an ``AssembledQuery``.
+        """Assemble a Template into an [fassung.query_assembler.AssembledQuery][].
 
         Args:
             query: A t-string template containing SQL with interpolated values.

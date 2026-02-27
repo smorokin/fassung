@@ -15,7 +15,7 @@ from fassung.type_parser import TypeParser
 class CursorIterator[T](AsyncIterator[T]):
     """Async iterator that yields typed rows from a query result.
 
-    Not intended to be created directly — use ``CursorFactory`` in an
+    Not intended to be created directly — use [fassung.cursor.CursorFactory][] in an
     ``async for`` loop instead.
     """
 
@@ -36,7 +36,7 @@ class CursorIterator[T](AsyncIterator[T]):
 class Cursor[T]:
     """Interactive database cursor for fetching typed rows on demand.
 
-    Not intended to be created directly — await a ``CursorFactory`` instead.
+    Not intended to be created directly — await a [fassung.cursor.CursorFactory][] instead.
     """
 
     def __init__(self, cursor: AsyncpgCursor, type_: type[T]) -> None:
@@ -75,9 +75,11 @@ class Cursor[T]:
 
 
 class CursorFactory[T](Awaitable[Cursor[T]], AsyncIterable[T]):
-    """Factory that produces a ``Cursor`` when awaited or a ``CursorIterator`` when iterated.
+    """Factory that produces a [fassung.cursor.Cursor][] when awaited or a
+    [fassung.cursor.CursorIterator][] when iterated.
 
-    Obtain an instance via ``Connection.cursor`` or ``Transaction.cursor``.
+    Obtain an instance via [fassung.connection.Connection.cursor][] or
+    [fassung.connection.Transaction.cursor][].
     """
 
     def __init__(self, cursor_factory: AsyncpgCursorFactory, type_: type[T]) -> None:

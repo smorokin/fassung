@@ -46,6 +46,9 @@ jobs:
       - name: Type check with pyright
         run: uv run pyright
 
+      - name: Check documentation build
+        run: uv run zensical build
+
       - name: Run tests with pytest
         env:
           POSTGRES_USER: user

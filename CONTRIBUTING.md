@@ -1,4 +1,4 @@
-# Contributing to fassung
+# Contributing
 
 Thank you for your interest in contributing to `fassung`! This guide will help you get started with the development environment.
 
@@ -64,4 +64,18 @@ To run the tests with coverage and generate a report, run:
 
 ```bash
 uv run pytest --cov --cov-report=term
+```
+
+### Documentation
+
+To serve the documentation locally:
+
+```bash
+uv run zensical serve
+```
+
+To build the documentation:
+
+```bash
+uv run zensical build
 ```

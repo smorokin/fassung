@@ -40,6 +40,8 @@ dev = [
   "ruff>=0.15.0",
   "pyright>=1.1.408",
   "prek>=0.3.3",
+  "zensical>=0.0.24",
+  "mkdocstrings-python>=2.0.3",
 ]
 
 
