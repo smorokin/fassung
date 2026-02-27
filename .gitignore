@@ -21,4 +21,5 @@ htmlcov/
 # env
 .env
 
-# pytest
+# zensical
+site/

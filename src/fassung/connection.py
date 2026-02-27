@@ -44,9 +44,9 @@ class TransactionStatus(StrEnum):
 class Transaction:
     """Wraps an active database transaction.
 
-    A Transaction proxies query methods to its parent ``Connection`` while
+    A [fassung.connection.Transaction][] proxies query methods to its parent [fassung.connection.Connection][] while
     guarding against use after commit, rollback, or being marked for rollback.
-    Use a ``Connection`` as an async context manager to obtain one.
+    Use a [fassung.connection.Connection][] as an async context manager to obtain one.
     """
 
     def __init__(self, connection: Connection, transaction: AsyncpgTransaction) -> None:
@@ -125,7 +125,7 @@ class Transaction:
         """Mark the transaction for rollback.
 
         The transaction cannot be used after this call. The actual rollback
-        is performed when the ``Connection`` context manager exits.
+        is performed when the [fassung.connection.Connection][] context manager exits.
         """
         self.status = TransactionStatus.MARKED_FOR_ROLLBACK
 
@@ -137,7 +137,7 @@ class Transaction:
 class Connection(AbstractAsyncContextManager[Transaction]):
     """Async database connection that assembles t-string queries and parses results.
 
-    Use as an async context manager to start a ``Transaction``::
+    Use as an async context manager to start a [fassung.connection.Transaction][]:
 
         async with connection as txn:
             await txn.execute(t"...")
