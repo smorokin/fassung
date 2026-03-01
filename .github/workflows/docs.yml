@@ -23,7 +23,7 @@ jobs:
           cache-dependency-glob: "uv.lock"
       - run: uv python install
       - run: uv sync --all-extras --dev
-      - run: zensical build --clean --strict
+      - run: uv run zensical build --clean --strict
       - uses: actions/upload-pages-artifact@v4
         with:
           path: site
