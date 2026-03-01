@@ -15,6 +15,10 @@ Additionally, fassung also uses pydantic to map the query results to python obje
 
 It is currently just a proof of concept and not ready for production use. Some features like `COPY` are not implemented yet.
 
+## Documentation
+
+The documentation can be found at [https://smorokin.github.io/fassung/](https://smorokin.github.io/fassung/).
+
 ## Installation
 
 Fassung requires python 3.14 because it relies on [template string literals (PEP 750)](https://peps.python.org/pep-0750/). You can install it with
